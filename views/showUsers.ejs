@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Users</title>
+    <style>
+        table,tr,td{
+            border: 2px solid black;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>id</td>
+            <td>username</td>
+            <td>email</td>
+        </tr>
+        <%for(dat of data){%>
+        <tr>
+            <td><%=dat.id%></td>
+            <td><%=dat.username%></td>
+            <td><%=dat.email%></td>
+        </tr>
+            <%}%>
+    </table>
+</body>
+</html>
