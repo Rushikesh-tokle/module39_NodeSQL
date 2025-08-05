@@ -4,7 +4,12 @@ const express=require("express");
 const app=express();
 const port=8080;
 const path =require("path");
+const methodOverride=require("method-override");
+const { json } = require("stream/consumers");
 
+
+app.use(methodOverride("_method"));
+app.use(express.urlencoded({extended:true}));
 
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
@@ -74,6 +79,48 @@ app.get("/user",(req,res)=>{
         res.render("Error Ocured");
     }
 })
+
+//edit route
+app.get("/user/:id/edit",(req,res)=>{
+  let {id}=req.params;
+let q=`select * from user where id='${id}'`;
+try{
+    connection.query(q,(err,result)=>{
+    if(err) throw err;
+    let user=result[0];
+    console.log(user);
+    res.render("edit.ejs",{user});
+    })
+    }catch(err){
+    res.send("some error occured");
+   }
+   
+})
+
+//update Route
+app.patch("/user/:id",(req,res)=>{
+  let {id}=req.params;
+  let {password:formPassword,username:newUsername}=req.body;
+let q=`select * from user where id='${id}'`;
+try{
+    connection.query(q,(err,result)=>{
+    if(err) throw err;
+    let user=result[0];
+    if(formPassword!=user.password){
+        res.send("Wrong Password");
+    }else{
+     let q2=`update user set username='${newUsername}' where id='${id}'`;
+     connection.query(q2,(err,result)=>{
+        if(err) throw err;
+        res.send(result);
+     }) ;
+    }
+    });
+    }catch(err){
+    res.send("some error occured");
+   }
+})
+
 
 
 app.listen(port,()=>{
