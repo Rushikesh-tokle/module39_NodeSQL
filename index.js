@@ -7,13 +7,29 @@ const connection = mysql.createConnection({
   database: 'delta_app',
   password:'Rushi@20022020'
 });
+
+
+
+let  getRandomUser=()=> {
+  return [
+  faker.string.uuid(),
+  faker.internet.username(), // before version 9.1.0, use userName()
+  faker.internet.email(),
+  faker.internet.password(),
+  ];
+};
+
+
 /////inserting new data
 let q="insert into user(id, username, email, password) values ?";
-let users=[["123b","123_newUserb","abc@gmail.comb","abcb"],
-         ["123c","123_newUserc","def@gmail.comc","defc"]];
+
+let data=[];
+for(let i=1;i<=100;i++){
+   data.push(getRandomUser());
+}
 
 try{
-connection.query(q,[users],(err,result)=>{
+connection.query(q,[data],(err,result)=>{
     if(err) throw err;
     console.log(result);
    
@@ -22,12 +38,5 @@ connection.query(q,[users],(err,result)=>{
     console.log(err);
 }
  connection.end();
-let  getRandomUser=()=> {
-  return {
-    id: faker.string.uuid(),
-    username: faker.internet.username(), // before version 9.1.0, use userName()
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-  };
-};
+
 
