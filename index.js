@@ -1,4 +1,4 @@
-const {faker}=require("@faker-js/faker");
+const {faker, tr}=require("@faker-js/faker");
 const mysql=require('mysql2');
 const express=require("express");
 const app=express();
@@ -6,6 +6,8 @@ const port=8080;
 const path =require("path");
 const methodOverride=require("method-override");
 const { json } = require("stream/consumers");
+const { v4: uuidv4}=require("uuid");
+const { callbackify } = require("util");
 
 
 app.use(methodOverride("_method"));
@@ -121,7 +123,68 @@ try{
    }
 })
 
+app.get("/user/new",(req,res)=>{
+  res.render("newRecord.ejs");
+})
 
+app.post("/user",(req,res)=>{
+  let {username,email,password}=req.body;
+  let id=uuidv4();
+  let q=`insert into user values('${id}','${username}','${email}','${password}')`;
+  try{
+    connection.query(q,(err,result)=>{
+      if(err) throw err;
+      res.redirect("/user");
+    })
+  }catch(err){
+    res.send("some Error occured");
+  }
+});
+
+
+app.get("/user/:id/delete", (req, res) => {
+  let { id } = req.params;
+  let q = `SELECT * FROM user WHERE id='${id}'`;
+
+  try {
+    connection.query(q, (err, result) => {
+      if (err) throw err;
+      let user = result[0];
+      res.render("delete.ejs", { user });
+    });
+  } catch (err) {
+    res.send("some error with DB");
+  }
+});
+
+app.delete("/user/:id/", (req, res) => {
+  let { id } = req.params;
+  let { password } = req.body;
+  let q = `SELECT * FROM user WHERE id='${id}'`;
+
+  try {
+    connection.query(q, (err, result) => {
+      if (err) throw err;
+      let user = result[0];
+
+      if (user.password != password) {
+        res.send("WRONG Password entered!");
+      } else {
+        let q2 = `DELETE FROM user WHERE id='${id}'`; //Query to Delete
+        connection.query(q2, (err, result) => {
+          if (err) throw err;
+          else {
+            console.log(result);
+            console.log("deleted!");
+            res.redirect("/user");
+          }
+        });
+      }
+    });
+  } catch (err) {
+    res.send("some error with DB");
+  }
+});
 
 app.listen(port,()=>{
 console.log(`The app is listening on ${port}`);
